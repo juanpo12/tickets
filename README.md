@@ -1,36 +1,98 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Buscador de Pagos - Next.js + Supabase
 
-## Getting Started
+Una aplicación web ultra simple para buscar pagos por payment_id usando Next.js, TypeScript y Supabase.
 
-First, run the development server:
+## Características
+
+- ✅ Búsqueda de pagos por payment_id (sin autenticación)
+- ✅ Interfaz limpia y responsive
+- ✅ Manejo de errores y estados de carga
+- ✅ TypeScript para type safety
+- ✅ Ultra simple - solo busca pagos
+
+## Configuración
+
+### 1. Configurar Supabase
+
+1. Ve a tu proyecto de Supabase
+2. Copia tu URL y ANON_KEY desde: Settings > API
+3. Actualiza el archivo `.env.local`:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://gykwnvbzkadorxifnglp.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=tu_anon_key
+```
+
+### 2. Configurar tabla de tickets
+
+Asegúrate de que tu tabla `tickets` tenga esta estructura (como en tu ejemplo):
+
+```sql
+create table tickets (
+  idx serial primary key,
+  id integer not null,
+  event_id integer not null,
+  buyer_name text not null,
+  buyer_email text not null,
+  amount_paid text not null,
+  payment_status text not null,
+  payment_id text not null unique,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null,
+  quantity integer not null
+);
+
+-- Asegúrate de que la tabla sea pública (sin autenticación requerida)
+alter table tickets enable row level security;
+create policy "Permitir lectura pública" on tickets for select using (true);
+```
+
+### 3. Instalar dependencias
+
+```bash
+npm install
+```
+
+### 4. Ejecutar en desarrollo
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+La aplicación estará disponible en `http://localhost:3004`
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Uso
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Ingresa el ID de un pago (payment_id) en el campo de búsqueda
+2. Si el pago existe, verás todos sus detalles (nombre, email, monto, estado, etc.)
+3. Si no existe, verás un mensaje de "Pago no encontrado - ID de pago inválido"
 
-## Learn More
+## Ejemplo de búsqueda
 
-To learn more about Next.js, take a look at the following resources:
+Puedes probar con este payment_id: `134673677430`
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Estructura del proyecto
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+ticket-app/
+├── src/
+│   ├── app/
+│   │   └── page.tsx            # Página principal (única página)
+│   ├── lib/
+│   │   └── supabase.ts         # Cliente de Supabase
+│   └── types/
+│       └── supabase.ts         # Tipos TypeScript
+└── .env.local                  # Variables de entorno
+```
 
-## Deploy on Vercel
+## Notas importantes
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- Esta versión **no requiere autenticación** - cualquiera puede buscar pagos
+- Asegúrate de que tu tabla `payments` tenga permisos de lectura públicos
+- La aplicación es ultra simple: solo busca pagos por payment_id y muestra los resultados
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Despliegue
+
+Para desplegar a producción:
+
+1. Configura las variables de entorno en tu plataforma de despliegue
+2. Ejecuta: `npm run build` y despliega
