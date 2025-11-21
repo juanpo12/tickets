@@ -18,7 +18,7 @@ export default function Home() {
         <PaymentSearch onLogout={handleLogout} />
       ) : (
         <LoginForm onSuccess={() => {
-          router.refresh()
+          router.push('/payment-search')
         }} />
       )}
     </div>
