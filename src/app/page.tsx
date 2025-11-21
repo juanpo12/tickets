@@ -1,12 +1,12 @@
 'use client'
-
-import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import LoginForm from '@/components/LoginForm'
 import PaymentSearch from '@/components/PaymentSearch'
 import { useAuth } from '@/hooks/useAuth'
 
 export default function Home() {
   const { user, signOut } = useAuth()
+  const router = useRouter()
 
   const handleLogout = async () => {
     await signOut()
@@ -17,7 +17,9 @@ export default function Home() {
       {user ? (
         <PaymentSearch onLogout={handleLogout} />
       ) : (
-        <LoginForm onSuccess={() => {}} />
+        <LoginForm onSuccess={() => {
+          router.refresh()
+        }} />
       )}
     </div>
   )
