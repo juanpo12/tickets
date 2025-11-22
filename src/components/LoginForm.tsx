@@ -1,6 +1,8 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { useAuth } from '@/hooks/useAuth'
 
 interface LoginFormProps {
   onSuccess?: () => void
@@ -12,20 +14,29 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
+  const { signIn } = useAuth()
+  const router = useRouter()
 
   const handleSubmit = async () => {
+    if (loading) return
     setError('')
     setLoading(true)
 
-    // Simulación de autenticación
-    setTimeout(() => {
-      if (email && password) {
-        onSuccess?.()
-      } else {
+    try {
+      const { data, error } = await signIn(email, password)
+      if (error) {
         setError('Credenciales inválidas o usuario no autorizado')
+      } else if (data?.session || data?.user) {
+        onSuccess?.()
+        router.push('/payment-search')
+      } else {
+        setError('No se pudo iniciar sesión')
       }
+    } catch (e) {
+      setError('Error al iniciar sesión')
+    } finally {
       setLoading(false)
-    }, 1500)
+    }
   }
 
   const handleKeyPress = (e: React.KeyboardEvent) => {

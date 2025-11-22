@@ -1,21 +1,21 @@
 'use client'
 
+import { useEffect } from 'react'
 import PaymentSearch from '@/components/PaymentSearch'
 import { useAuth } from '@/hooks/useAuth'
 import { useRouter } from 'next/navigation'
-import { useEffect } from 'react'
 
 export default function PaymentSearchPage() {
-  const { user, signOut } = useAuth()
+  const { user, loading, signOut } = useAuth()
   const router = useRouter()
 
   useEffect(() => {
-    if (!user) {
+    if (!loading && !user) {
       router.replace('/')
     }
-  }, [user, router])
+  }, [loading, user, router])
 
-  if (!user) return null
+  if (loading || !user) return null
 
   const handleLogout = async () => {
     await signOut()
